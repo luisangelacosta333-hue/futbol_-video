@@ -1,0 +1,14 @@
+{
+  "name": "TalentBridge Football",
+  "short_name": "TalentBridge",
+  "description": "Plataforma internacional de descubrimiento y evaluacion de talentos futbolisticos.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b1220",
+  "theme_color": "#0a7a3d",
+  "icons": [
+    { "src": "/assets/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "categories": ["sports", "social", "productivity"]
+}
