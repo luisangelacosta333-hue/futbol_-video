@@ -1,18 +1,17 @@
 /**
- * index.js
- * Servidor Express completo para Vercel Serverless conectado al esquema aislado 'talentbridge'.
+ * api/index.js
+ * Servidor Express para Vercel Serverless conectado al esquema 'talentbridge'.
  */
 import express from 'express';
 import cors from 'cors';
-import { getSupabaseAdmin } from './supabase.js';
-import { env } from './env.js';
+import { getSupabaseAdmin } from '../supabase.js';
+import { env } from '../env.js';
 
 const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// 1. Healthcheck y configuración pública para el frontend
 app.get('/api/health', (req, res) => {
   res.json({
     ok: true,
@@ -29,7 +28,6 @@ app.get('/api/config', (req, res) => {
   });
 });
 
-// 2. Planes de suscripción (Soluciona el "Error cargando planes: Error 500")
 const getPlansHandler = async (req, res) => {
   try {
     const supabase = getSupabaseAdmin();
@@ -49,20 +47,14 @@ const getPlansHandler = async (req, res) => {
 app.get('/api/plans', getPlansHandler);
 app.get('/api/subscriptions/plans', getPlansHandler);
 
-// 3. Suscripción actual del usuario
-app.get('/api/subscriptions/me', async (req, res) => {
-  try {
-    res.json({
-      ok: true,
-      subscription: { plan_code: 'free', status: 'active' },
-      data: { plan_code: 'free', status: 'active' }
-    });
-  } catch (err) {
-    res.status(500).json({ ok: false, error: err.message });
-  }
+app.get('/api/subscriptions/me', (req, res) => {
+  res.json({
+    ok: true,
+    subscription: { plan_code: 'free', status: 'active' },
+    data: { plan_code: 'free', status: 'active' }
+  });
 });
 
-// 4. Listado y búsqueda de Jugadores / Perfiles
 const getPlayersHandler = async (req, res) => {
   try {
     const supabase = getSupabaseAdmin();
@@ -83,7 +75,6 @@ const getPlayersHandler = async (req, res) => {
 app.get('/api/players', getPlayersHandler);
 app.get('/api/profiles', getPlayersHandler);
 
-// 5. Listado de Videos / Feed
 app.get('/api/videos', async (req, res) => {
   try {
     const supabase = getSupabaseAdmin();
@@ -101,7 +92,6 @@ app.get('/api/videos', async (req, res) => {
   }
 });
 
-// 6. Listado de Organizaciones / Clubes
 const getOrgsHandler = async (req, res) => {
   try {
     const supabase = getSupabaseAdmin();
