@@ -1,10 +1,8 @@
 /**
- * api/index.js
- * Handler para Vercel Functions (serverless). Reutiliza la misma app Express.
- * En Vercel, toda ruta /api/* se reescribe aqui (ver vercel.json -> rewrites).
- * NO llamar a listen() — Vercel inyecta req/res.
+ * index.js
+ * Handler para Vercel Functions (serverless) en la raíz del proyecto.
  */
-import { createApp } from '../backend/src/app.js';
+import { createApp } from './app.js';
 
 const app = createApp();
 export default app;
