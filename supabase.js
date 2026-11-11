@@ -1,21 +1,26 @@
 /**
- * db/supabase.js
- * Cliente Supabase con service_role (admin). SOLO backend.
- * Usado para Auth admin (gestion de usuarios) y Storage.
- * Nunca enviar este cliente ni su key al frontend.
+ * supabase.js
+ * Cliente Supabase con service_role (admin) apuntando al esquema aislado talentbridge.
  */
 import { createClient } from '@supabase/supabase-js';
-import { env } from '../config/env.js';
+import { env } from './env.js';
 
 let adminClient = null;
 
 export function getSupabaseAdmin() {
   if (adminClient) return adminClient;
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
+
+  const url = process.env.SUPABASE_URL || env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
     throw new Error('Supabase no configurado (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY).');
   }
-  adminClient = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+
+  adminClient = createClient(url, key, {
+    db: { schema: 'talentbridge' },
     auth: { autoRefreshToken: false, persistSession: false },
   });
+
   return adminClient;
 }
