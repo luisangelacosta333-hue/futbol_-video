@@ -1,10 +1,9 @@
 /**
- * db/pool.js
- * Pool de conexiones PostgreSQL (pg). Conexion lazy: no falla al importar.
- * En test sin DATABASE_URL se exporta un pool nulo que lanza error claro al usarse.
+ * pool.js
+ * Pool de conexiones PostgreSQL (pg) con soporte para esquema aislado talentbridge.
  */
 import pg from 'pg';
-import { env } from '../config/env.js';
+import { env } from './env.js';
 
 const { Pool } = pg;
 
@@ -12,14 +11,17 @@ let pool = null;
 
 export function getPool() {
   if (pool) return pool;
-  if (!env.DATABASE_URL) {
+  const connString = process.env.DATABASE_URL || env.DATABASE_URL;
+  if (!connString) {
     throw new Error('DATABASE_URL no configurada. No se puede acceder a la base de datos.');
   }
   pool = new Pool({
-    connectionString: env.DATABASE_URL,
+    connectionString: connString,
     ssl: env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    max: 10,
+    max: 5,
     idleTimeoutMillis: 30000,
+    // Apunta automáticamente al esquema aislado talentbridge sin tocar public
+    options: '-c search_path=talentbridge,public',
   });
   pool.on('error', (err) => {
     console.error('[pg] error inesperado en cliente idle:', err.message);
@@ -27,13 +29,4 @@ export function getPool() {
   return pool;
 }
 
-/** Ejecuta una query y devuelve rows. Helper minimalista. */
-export async function query(text, params = []) {
-  const res = await getPool().query(text, params);
-  return res.rows;
-}
-
-export async function closePool() {
-  if (pool) await pool.end();
-  pool = null;
-}
+/** Ejecuta una query
